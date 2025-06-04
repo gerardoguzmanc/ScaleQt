@@ -5,6 +5,7 @@
 #include <qserialport.h>
 #include <qtimer.h>
 #include <QRegularExpression>
+#include <QMessageBox>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -32,10 +33,12 @@ private:
     void populateSerialPorts();
     void readSerialData();
     void DisplayInfo(QString &SerialRecvInfo);
-    void updateConnectButtons(bool connected);
+    void sendDataLoop(); // Slot for the timer to call, handles sending 'P' command
 
     QSerialPort *ScaleSerial;
 
+    QTimer *loopTimer; // Declare a QTimer object
+    bool isLoopActive = false; // To track if the loop is running
 
     static constexpr int DEFAULT_BAUD_RATE = 9600; // Define a default baud rate
 
