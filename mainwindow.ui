@@ -39,8 +39,17 @@
       <x>70</x>
       <y>130</y>
       <width>521</width>
-      <height>181</height>
+      <height>121</height>
      </rect>
+    </property>
+    <property name="digitCount">
+     <number>9</number>
+    </property>
+    <property name="value" stdset="0">
+     <double>0.000000000000000</double>
+    </property>
+    <property name="intValue" stdset="0">
+     <number>0</number>
     </property>
    </widget>
    <widget class="QPushButton" name="pushButtonSerialConfig">
@@ -136,6 +145,25 @@
     </property>
     <property name="text">
      <string>Configuración Envio Datos</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="ScaleUnits">
+    <property name="geometry">
+     <rect>
+      <x>610</x>
+      <y>135</y>
+      <width>58</width>
+      <height>111</height>
+     </rect>
+    </property>
+    <property name="font">
+     <font>
+      <family>Helvetica</family>
+      <pointsize>48</pointsize>
+     </font>
+    </property>
+    <property name="text">
+     <string/>
     </property>
    </widget>
   </widget>

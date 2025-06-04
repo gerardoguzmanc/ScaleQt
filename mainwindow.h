@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <qserialport.h>
 #include <qtimer.h>
+#include <QRegularExpression>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -29,6 +30,8 @@ private:
     void pushButtonSerialSendFunc();
     void readData();
     void populateSerialPorts();
+    void readSerialData();
+    void DisplayInfo(QString &SerialRecvInfo);
     void updateConnectButtons(bool connected);
 
     QSerialPort *ScaleSerial;
