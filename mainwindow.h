@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <qserialport.h>
+#include <qserialportinfo.h>
 #include <qtimer.h>
 #include <QRegularExpression>
 #include <QMessageBox>
@@ -25,6 +26,8 @@ private slots:
     void on_pushButtonConnection_clicked();
 
     void on_pushButtonSend_clicked();
+
+    void on_pushButtonSerialConfig_clicked();
 
 private:
     Ui::MainWindow *ui;

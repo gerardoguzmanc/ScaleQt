@@ -17,6 +17,7 @@ MainWindow::MainWindow(QWidget *parent)
 
     // Connect the QTimer's timeout signal to your new slot
     connect(loopTimer, &QTimer::timeout, this, &MainWindow::sendDataLoop);
+
 }
 
 MainWindow::~MainWindow()
@@ -40,20 +41,46 @@ void MainWindow::readData()
 
 void MainWindow::on_pushButtonConnection_clicked()
 {
-    QString portName = "/dev/cu.usbmodem00000000001A1";
-    ScaleSerial->setPortName(portName);
-    ScaleSerial->setBaudRate(static_cast<QSerialPort::BaudRate>(9600));
-    ScaleSerial->setDataBits(QSerialPort::Data8);
-    ScaleSerial->setParity(QSerialPort::NoParity);
-    ScaleSerial->setStopBits(QSerialPort::OneStop);
-    ScaleSerial->setFlowControl(QSerialPort::NoFlowControl);
 
-    if (ScaleSerial->open(QIODevice::ReadWrite)) {
-        qDebug() << "Serial port opened successfully.";
-        // Optionally, enable your start loop button here if connection is successful
-    } else {
-        qCritical() << "Failed to open serial port:" << ScaleSerial->errorString();
-        QMessageBox::critical(this, "Serial Port Error", ScaleSerial->errorString()); // Show user-friendly error
+    if(ScaleSerial->isOpen()){
+        ScaleSerial->close();
+        ui->pushButtonConnection->setText(("Conectar"));
+    }
+    else{
+
+        // 1. Get the selected port name from the QComboBox
+        // We stored the actual port name in the item's data (Qt::UserRole)
+        QString selectedPortName = ui->comboBoxSerialPorts->currentData().toString();
+        ui->comboBoxSerialPorts->clear();
+        // Check if a valid port was selected (e.g., not "No serial ports found")
+        if (selectedPortName.isEmpty() || selectedPortName.contains("No serial ports found")) {
+            QMessageBox::warning(this, "Serial Port Error", "Please select a valid serial port.");
+            qDebug() << "Attempted to open an invalid or empty port selection.";
+            return;
+        }
+
+        // 2. Configure the QSerialPort object
+        ScaleSerial->setPortName(selectedPortName);
+        ScaleSerial->setBaudRate(QSerialPort::Baud9600); // Common baud rate for many devices
+        ScaleSerial->setDataBits(QSerialPort::Data8);
+        ScaleSerial->setParity(QSerialPort::NoParity);
+        ScaleSerial->setStopBits(QSerialPort::OneStop);
+        ScaleSerial->setFlowControl(QSerialPort::NoFlowControl);
+
+        // 3. Open the serial port
+        if (ScaleSerial->open(QIODevice::ReadWrite)){
+            qDebug() << "Successfully opened serial port:" << selectedPortName;
+            // Optionally update UI to show connected status, disable open button, enable disconnect etc.
+            ui->pushButtonConnection->setText(("Desconectar"));
+
+        } else {
+            // Handle error: port could not be opened
+            qDebug() << "Failed to open serial port:" << selectedPortName << "Error:" << ScaleSerial->errorString();
+            QMessageBox::critical(this, "Serial Port Error",
+                                  QString("Could not open serial port %1. Error: %2")
+                                      .arg(selectedPortName)
+                                      .arg(ScaleSerial->errorString()));
+        }
     }
 }
 
@@ -174,3 +201,48 @@ void MainWindow::sendDataLoop()
         QMessageBox::warning(this, "Serial Port Closed", "The serial port was closed. Stopping weight reading loop.");
     }
 }
+
+void MainWindow::on_pushButtonSerialConfig_clicked()
+{
+    // Clear any existing items in the QComboBox before adding new ones
+    // Assuming your QComboBox is named 'serialPortComboBox' in mainwindow.ui
+    ui->comboBoxSerialPorts->clear();
+
+    qDebug() << "Scanning for serial ports...";
+
+    // Get a list of all available serial ports
+    const auto serialPortInfos = QSerialPortInfo::availablePorts();
+
+    if (serialPortInfos.isEmpty()) {
+        ui->comboBoxSerialPorts->addItem("No serial ports found");
+        qDebug() << "No serial ports found.";
+    } else {
+        // Iterate through the list of found ports
+        for (const QSerialPortInfo &portInfo : serialPortInfos) {
+            QString portDetails;
+            portDetails += portInfo.portName(); // e.g., "COM3", "/dev/ttyUSB0"
+
+            if (!portInfo.description().isEmpty()) {
+                portDetails += " - " + portInfo.description(); // e.g., "USB Serial Device"
+            }
+            // You can add more details if you like:
+            // if (!portInfo.manufacturer().isEmpty()) {
+            //     portDetails += " (" + portInfo.manufacturer() + ")";
+            // }
+            // if (!portInfo.serialNumber().isEmpty()) {
+            //     portDetails += " [SN: " + portInfo.serialNumber() + "]";
+            // }
+
+            // Add the descriptive string to the QComboBox.
+            // We also store the actual port name (e.g., "COM3") as the item's data (Qt::UserRole).
+            // This makes it easy to retrieve the actual port name when the user selects an item.
+            ui->comboBoxSerialPorts->addItem(portDetails, QVariant(portInfo.portName()));
+
+            qDebug() << "Found Port: " << portDetails;
+            qDebug() << "  System Location: " << portInfo.systemLocation();
+            qDebug() << "  Vendor ID: " << (portInfo.hasVendorIdentifier() ? QString::number(portInfo.vendorIdentifier(), 16) : "N/A");
+            qDebug() << "  Product ID: " << (portInfo.hasProductIdentifier() ? QString::number(portInfo.productIdentifier(), 16) : "N/A");
+        }
+    }
+}
+
