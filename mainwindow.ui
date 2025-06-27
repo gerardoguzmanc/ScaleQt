@@ -206,6 +206,16 @@
       <pointsize>18</pointsize>
      </font>
     </property>
+    <item>
+     <property name="text">
+      <string>9600</string>
+     </property>
+    </item>
+    <item>
+     <property name="text">
+      <string>115200</string>
+     </property>
+    </item>
    </widget>
    <widget class="QPushButton" name="pushButtonConnection">
     <property name="geometry">

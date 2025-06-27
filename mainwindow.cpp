@@ -51,6 +51,7 @@ void MainWindow::on_pushButtonConnection_clicked()
         // 1. Get the selected port name from the QComboBox
         // We stored the actual port name in the item's data (Qt::UserRole)
         QString selectedPortName = ui->comboBoxSerialPorts->currentData().toString();
+        qint32 SelectedBaudRate;
         ui->comboBoxSerialPorts->clear();
         // Check if a valid port was selected (e.g., not "No serial ports found")
         if (selectedPortName.isEmpty() || selectedPortName.contains("No serial ports found")) {
@@ -61,7 +62,13 @@ void MainWindow::on_pushButtonConnection_clicked()
 
         // 2. Configure the QSerialPort object
         ScaleSerial->setPortName(selectedPortName);
-        ScaleSerial->setBaudRate(QSerialPort::Baud9600); // Common baud rate for many devices
+        if(ui->comboBoxBaudRates->currentIndex() == 0){
+            SelectedBaudRate = QSerialPort::Baud9600;
+        }
+        if(ui->comboBoxBaudRates->currentIndex() == 1){
+           SelectedBaudRate = QSerialPort::Baud115200;
+        }
+        ScaleSerial->setBaudRate(SelectedBaudRate); // Common baud rate for many devices
         ScaleSerial->setDataBits(QSerialPort::Data8);
         ScaleSerial->setParity(QSerialPort::NoParity);
         ScaleSerial->setStopBits(QSerialPort::OneStop);
@@ -70,6 +77,7 @@ void MainWindow::on_pushButtonConnection_clicked()
         // 3. Open the serial port
         if (ScaleSerial->open(QIODevice::ReadWrite)){
             qDebug() << "Successfully opened serial port:" << selectedPortName;
+            qDebug() << "at " << SelectedBaudRate;
             // Optionally update UI to show connected status, disable open button, enable disconnect etc.
             ui->pushButtonConnection->setText(("Desconectar"));
 
@@ -244,5 +252,11 @@ void MainWindow::on_pushButtonSerialConfig_clicked()
             qDebug() << "  Product ID: " << (portInfo.hasProductIdentifier() ? QString::number(portInfo.productIdentifier(), 16) : "N/A");
         }
     }
+}
+
+
+void MainWindow::on_pushButtonAsciiHex_clicked()
+{
+
 }
 
