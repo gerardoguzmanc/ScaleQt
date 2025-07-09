@@ -255,8 +255,4 @@ void MainWindow::on_pushButtonSerialConfig_clicked()
 }
 
 
-void MainWindow::on_pushButtonAsciiHex_clicked()
-{
-
-}
 
